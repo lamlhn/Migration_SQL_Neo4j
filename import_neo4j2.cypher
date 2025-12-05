@@ -77,8 +77,8 @@ CREATE (e)-[:TRAVAILLE_DANS]->(s);
 
 // (EMPLOYE) -[:SUPERVISE_PAR]-> (EMPLOYE)
 LOAD CSV WITH HEADERS FROM base_url + 'supervise_par.csv' AS row
-MATCH (e:EMPLOYE {staffId: toInteger(row.staff_id)})
-MATCH (m:EMPLOYE {staffId: toInteger(row.manager_id)})
+MATCH (e:EMPLOYE {staff_id: toInteger(row.staff_id)})
+MATCH (m:EMPLOYE {staff_id: toInteger(row.manager_id)})
 CREATE (e)-[:SUPERVISE_PAR]->(m);
 
 // 9. Validation des imports
