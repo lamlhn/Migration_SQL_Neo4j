@@ -1,0 +1,8 @@
+staff_id,first_name,last_name,active,store_id
+1,Mike,Hillyer,1,1
+2,Jon,Stephens,1,2
+3,Marie,Dupont,1,1
+4,Jean,Martin,0,1
+5,Sophie,Bernard,1,1
+6,Pierre,Lefebvre,1,2
+7,Manon,Charpentier,0,2
