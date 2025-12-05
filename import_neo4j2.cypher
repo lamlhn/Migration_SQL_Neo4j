@@ -1,22 +1,18 @@
-
--- SCRIPT CYPHER POUR IMPORT NEO4J - VERSION CORRECTE
--- Étape 3: Migration des données Neo4j
-
--- 1. Nettoyage (optionnel pour les tests)
+// 1. Nettoyage 
 MATCH (n) DETACH DELETE n;
 
--- 2. Création des contraintes
+// 2. Création des contraintes
 CREATE CONSTRAINT customer_id IF NOT EXISTS FOR (u:USAGER) REQUIRE u.customerId IS UNIQUE;
 CREATE CONSTRAINT film_id IF NOT EXISTS FOR (f:FILM) REQUIRE f.filmId IS UNIQUE;
 CREATE CONSTRAINT category_id IF NOT EXISTS FOR (g:GENRE) REQUIRE g.categoryId IS UNIQUE;
 CREATE CONSTRAINT staff_id IF NOT EXISTS FOR (e:EMPLOYE) REQUIRE e.staffId IS UNIQUE;
 CREATE CONSTRAINT store_id IF NOT EXISTS FOR (s:SECTION) REQUIRE s.storeId IS UNIQUE;
 
--- 3. Importer les nœuds
--- URL GitHub pour les fichiers CSV
+// 3. Importer les nœuds
+// URL GitHub pour les fichiers CSV
 WITH 'https://raw.githubusercontent.com/lamlhn/Migration_SQL_Neo4j/refs/heads/main/' AS base_url
 
--- USAGER
+// USAGER
 LOAD CSV WITH HEADERS FROM base_url + 'customer.csv' AS row
 CREATE (:USAGER {
     customer_id: toInteger(row.customer_id),
@@ -25,7 +21,7 @@ CREATE (:USAGER {
     active: toInteger(row.active)
 });
 
--- FILM
+// FILM
 LOAD CSV WITH HEADERS FROM base_url + 'film.csv' AS row
 CREATE (:FILM {
     film_id: toInteger(row.film_id),
@@ -33,7 +29,7 @@ CREATE (:FILM {
     releaseYear: toInteger(row.releaseYear)
 });
 
--- GENRE
+// GENRE
 LOAD CSV WITH HEADERS FROM base_url + 'categorie.csv' AS row
 CREATE (:GENRE {
     category_id: toInteger(row.category_id),
@@ -41,7 +37,7 @@ CREATE (:GENRE {
 });
 
 
--- EMPLOYE
+// EMPLOYE
 LOAD CSV WITH HEADERS FROM base_url + 'staff.csv' AS row
 CREATE (:EMPLOYE {
     staff_id: toInteger(row.staff_id),
@@ -50,14 +46,14 @@ CREATE (:EMPLOYE {
     active: toInteger(row.active)
 });
 
--- SECTION
+// SECTION
 LOAD CSV WITH HEADERS FROM base_url + 'store.csv' AS row
 CREATE (:SECTION {
     store_id: toInteger(row.store_id)
 });
 
--- 4. Importer les relations
--- (USAGER) -[:A_VISIONNE]-> (FILM)
+// 4. Importer les relations
+// (USAGER) -[:A_VISIONNE]-> (FILM)
 LOAD CSV WITH HEADERS FROM base_url + 'a_visionne.csv' AS row
 MATCH (u:USAGER {customer_id: toInteger(row.customer_id)})
 MATCH (f:FILM {film_id: toInteger(row.film_id)})
@@ -67,28 +63,28 @@ CREATE (u)-[:A_VISIONNE {
     return_date: CASE WHEN row.return_date IS NOT NULL THEN datetime(replace(row.return_date, ' ', 'T')) ELSE null END
 }]->(f);
 
--- (FILM) -[:APPARTIENT_A]-> (GENRE)
+// (FILM) -[:APPARTIENT_A]-> (GENRE)
 LOAD CSV WITH HEADERS FROM base_url + 'appartient_a.csv' AS row
 MATCH (f:FILM {film_id: toInteger(row.film_id)})
 MATCH (g:GENRE {category_id: toInteger(row.category_id)})
 CREATE (f)-[:APPARTIENT_A]->(g);
 
--- (EMPLOYE) -[:TRAVAILLE_DANS]-> (SECTION)
+// (EMPLOYE) -[:TRAVAILLE_DANS]-> (SECTION)
 LOAD CSV WITH HEADERS FROM base_url + 'travaille_dans.csv' AS row
 MATCH (e:EMPLOYE {staff_id: toInteger(row.staff_id)})
 MATCH (s:SECTION {store_id: toInteger(row.store_id)})
 CREATE (e)-[:TRAVAILLE_DANS]->(s);
 
--- (EMPLOYE) -[:SUPERVISE_PAR]-> (EMPLOYE)
+// (EMPLOYE) -[:SUPERVISE_PAR]-> (EMPLOYE)
 LOAD CSV WITH HEADERS FROM base_url + 'supervise_par.csv' AS row
 MATCH (e:EMPLOYE {staffId: toInteger(row.staff_id)})
 MATCH (m:EMPLOYE {staffId: toInteger(row.manager_id)})
 CREATE (e)-[:SUPERVISE_PAR]->(m);
 
--- 9. Validation des imports
+// 9. Validation des imports
 MATCH (n) RETURN labels(n) as label, count(*) as count
 ORDER BY label;
 
--- 10. Validation des relations
+// 10. Validation des relations
 MATCH ()-[r]->() RETURN type(r) as relation, count(*) as count
 ORDER BY relation;
