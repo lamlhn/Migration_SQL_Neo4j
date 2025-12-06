@@ -25,7 +25,7 @@ LOAD CSV WITH HEADERS FROM base_url + 'film.csv' AS row
 CREATE (:FILM {
     film_id: toInteger(row.film_id),
     title: row.title,
-    releaseYear: toInteger(row.releaseYear)
+    release_year: toInteger(row.release_year)
 });
 
 // GENRE
@@ -33,7 +33,7 @@ WITH 'https://raw.githubusercontent.com/lamlhn/Migration_SQL_Neo4j/refs/heads/ma
 LOAD CSV WITH HEADERS FROM base_url + 'categorie.csv' AS row
 CREATE (:GENRE {
     category_id: toInteger(row.category_id),
-    categoryName: row.categoryName
+    category_name: row.category_name
 });
 
 
